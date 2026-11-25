@@ -1,0 +1,64 @@
+{
+  "exploration": {
+    "raw_rows": 300153,
+    "duplicate_observations": 0,
+    "missing": {
+      "airline": 0,
+      "flight": 0,
+      "source_city": 0,
+      "departure_time": 0,
+      "stops": 0,
+      "arrival_time": 0,
+      "destination_city": 0,
+      "class": 0,
+      "duration": 0,
+      "days_left": 0,
+      "price": 0
+    },
+    "routes": 30
+  },
+  "classification": {
+    "permutation_auc_drop": {
+      "source_city": 0.006737446919501511,
+      "destination_city": 0.0047155560809657064,
+      "airline": 0.04936873378030715,
+      "arrival_time": 0.004403359247312388,
+      "departure_time": 0.0016711091971169563,
+      "stops": 0.05067129355978502,
+      "duration": 0.0012579351005879147,
+      "days_left": 0.2672177374713135
+    },
+    "threshold_inr": 7774.0,
+    "train_quotes": 164498,
+    "test_quotes": 42168,
+    "positive_fraction_test": 0.23325744640485677,
+    "always_standard_accuracy": 0.7667425535951432,
+    "accuracy": 0.8251754885221021,
+    "precision": 0.5866263535367741,
+    "recall": 0.8482106547376983,
+    "f1": 0.6935738631640203,
+    "roc_auc": 0.9142174658963479,
+    "confusion_matrix": [
+      [
+        26453,
+        5879
+      ],
+      [
+        1493,
+        8343
+      ]
+    ]
+  },
+  "departure_date_series": {
+    "train_days": 42,
+    "test_days": 7,
+    "first": "2022-02-11",
+    "last": "2022-03-31",
+    "mae_inr": {
+      "last_value": 63.5,
+      "weekly_repeat": 264.64285714285717,
+      "arima": 62.629805194689006,
+      "sarima": 50.387220102969096
+    }
+  }
+}
