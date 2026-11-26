@@ -1,5 +1,5 @@
 """Serve the complete FlightSense website through Streamlit Community Cloud."""
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, timezone
 from functools import lru_cache
 from pathlib import Path
 import json
@@ -43,8 +43,12 @@ def component_assets(revision):
     height: Math.ceil(document.body.getBoundingClientRect().height) + 8
   });
   addEventListener("message", event => {
-    if (event.source === parent && event.data?.type === "streamlit:render") resize();
+    if (event.source !== parent || event.data?.type !== "streamlit:render") return;
+    window.flightState = event.data.args;
+    window.dispatchEvent(new Event("fare-render"));
+    resize();
   });
+  window.sendFareRequest = value => send("setComponentValue", {dataType:"json",value});
   new ResizeObserver(resize).observe(document.body);
   send("componentReady", {apiVersion: 1});
   resize();
@@ -74,107 +78,66 @@ def flight_search(key, params):
         messages = {401: "Check your SerpApi key in Streamlit Secrets.",
                     403: "The provider denied access. Check your SerpApi account.",
                     429: "Search quota or rate limit reached. Check your SerpApi dashboard."}
-        st.error(messages.get(exc.code, "The provider could not complete this search."))
-        return None
+        raise ValueError(messages.get(exc.code, "The provider could not complete this search.")) from None
     except (URLError, TimeoutError, ValueError):
-        st.error("Could not reach the fare provider. Try again.")
-        return None
+        raise ValueError("Could not reach the fare provider. Try again.") from None
     if payload.get("error"):
-        st.warning("The provider could not return offers for these search details.")
-        return None
+        raise ValueError("The provider could not return offers for these search details.")
     return sorted((offer for field in ("best_flights","other_flights")
                    for offer in payload.get(field, []) if offer.get("flights")),
                   key=lambda offer: offer.get("price") if isinstance(offer.get("price"), (float,int)) else float("inf"))
 
 
-def display_offers(offers, key, params, returning=False):
-    if not offers:
-        st.info("No fares found for this search.")
-    for index, offer in enumerate(offers):
-        legs = offer["flights"]
-        with st.container(border=True):
-            a, b, c = st.columns([1,5,3])
-            logo = offer.get("airline_logo") or legs[0].get("airline_logo")
-            if logo and logo.startswith("https://"):
-                a.image(logo, width=48)
-            b.write(" · ".join(dict.fromkeys(leg.get("airline","Airline") for leg in legs)))
-            price = offer.get("price")
-            c.write(f"₹{price:,.0f}" if isinstance(price,(int,float)) else "Price unavailable")
-            start, end = legs[0]["departure_airport"], legs[-1]["arrival_airport"]
-            st.write(f"{start['id']} {start['time']} → {end['id']} {end['time']}")
-            minutes = offer.get("total_duration")
-            length = f" · {minutes//60}h {minutes%60}m" if isinstance(minutes,int) else ""
-            st.caption(("Nonstop" if len(legs)==1 else f"{len(legs)-1} stop(s)") + length + " · Airport local times")
-            with st.expander("Flight details"):
-                for leg in legs:
-                    st.write(f"{leg['departure_airport']['id']} → {leg['arrival_airport']['id']} · {leg.get('flight_number','')}")
-            token = offer.get("departure_token")
-            if not returning and params["type"] == 1 and token and st.button("See return flights", key=f"return_{index}"):
-                st.session_state.pop("return_options",None)
-                with st.spinner("Checking return flights…"):
-                    choices = flight_search(key, dict(params, departure_token=token))
-                if choices is not None:
-                    st.session_state.return_options = (f"{start['id']} → {end['id']} · {start['time']} · {legs[0].get('flight_number','')}", choices)
+def search_params(request):
+    origin, dest = request["origin"], request["dest"]
+    if origin == dest or origin not in airports() or dest not in airports():
+        raise ValueError("Choose two different airports from the directory.")
+    depart = date.fromisoformat(request["depart"])
+    back = date.fromisoformat(request["back"]) if request.get("back") else None
+    if depart < date.today() or (back and back < depart):
+        raise ValueError("Check your departure and return dates.")
+    adults, cabin = int(request["adults"]), int(request["cabin"])
+    if not 1 <= adults <= 9 or not 1 <= cabin <= 4:
+        raise ValueError("Choose a valid passenger count and cabin.")
+    params = dict(departure_id=origin, arrival_id=dest, outbound_date=depart.isoformat(),
+                  type=1 if back else 2, adults=adults, travel_class=cabin,
+                  stops=1 if request.get("nonstop") is True else 0)
+    if back:
+        params["return_date"] = back.isoformat()
+    return params
 
 
-def live_search():
-    st.title("Search flight prices")
-    st.write("Compare domestic and international fares in rupees.")
+def handle(request, key, state):
+    result = dict(id=request["id"])
     try:
-        key = st.secrets.get("serpapi", {}).get("api_key","")
-    except FileNotFoundError:
-        key = ""
-    ready = bool(key)
-    if not ready:
-        st.info("Add your SerpApi API key in Streamlit Secrets to enable flight search.")
-    catalog = airports()
-    codes = list(catalog)
-    trip = st.radio("Trip type", ["One way","Round trip"], horizontal=True)
-    today = date.today()
-    with st.form("flight_search"):
-        a,b = st.columns(2)
-        origin = a.selectbox("From", codes, index=codes.index("DEL"), format_func=catalog.get)
-        destination = b.selectbox("To", codes, index=codes.index("LHR"), format_func=catalog.get)
-        a,b = st.columns(2)
-        depart = a.date_input("Departure", today+timedelta(days=14), min_value=today)
-        back = b.date_input("Return", today+timedelta(days=21), min_value=today) if trip == "Round trip" else None
-        a,b = st.columns(2)
-        adults = a.number_input("Adults",1,9,1)
-        cabin = b.selectbox("Cabin", ["Economy","Premium economy","Business","First"])
-        nonstop = st.checkbox("Nonstop only")
-        submitted = st.form_submit_button("Search flights",type="primary",disabled=not ready)
-    if submitted:
-        st.session_state.pop("serp_offers",None)
-        st.session_state.pop("return_options",None)
-        if origin == destination or (back and back < depart):
-            st.error("Choose different airports and a return date on or after departure.")
-            return
-        params = dict(departure_id=origin, arrival_id=destination, type=1 if back else 2,
-                      outbound_date=depart.isoformat(), adults=adults, stops=1 if nonstop else 0,
-                      travel_class=["Economy","Premium economy","Business","First"].index(cabin)+1)
-        if back:
-            params["return_date"] = back.isoformat()
-        with st.spinner("Searching Google Flights via SerpApi…"):
-            offers = flight_search(key, params)
-        if offers is not None:
-            st.session_state.serp_offers = (params,offers,datetime.now(timezone.utc).strftime("%H:%M UTC"))
-    if ready and "serp_offers" in st.session_state:
-        params,offers,checked = st.session_state.serp_offers
-        st.subheader(f"{params['departure_id']} → {params['arrival_id']}")
-        dates = params["outbound_date"] + (" – " + params["return_date"] if "return_date" in params else "")
-        st.caption(f"{dates} · {params['adults']} adult(s) · Checked {checked} · Google Flights via SerpApi")
-        display_offers(offers,key,params)
-        if "return_options" in st.session_state:
-            selected, choices = st.session_state.return_options
-            st.subheader("Return flights")
-            st.caption("Selected outbound: " + selected)
-            display_offers(choices,key,params,returning=True)
+        if not key:
+            raise ValueError("Add your SerpApi key in Streamlit Secrets.")
+        if request.get("action") == "return":
+            previous = state["outbound"]
+            index = int(request["index"])
+            if request["searchId"] != previous["id"] or not 0 <= index < len(previous["offers"]):
+                raise ValueError("Run the outbound search again.")
+            params = dict(previous["params"], departure_token=previous["offers"][index]["departure_token"])
+        else:
+            state.pop("outbound", None)
+            params = search_params(request)
+        offers = flight_search(key, params)
+        result.update(offers=offers, checked=datetime.now(timezone.utc).strftime("%H:%M UTC"))
+        if request.get("action") != "return":
+            state["outbound"] = dict(id=request["id"], params=params, offers=offers)
+    except (ValueError, KeyError, TypeError, IndexError) as exc:
+        result["error"] = str(exc) if isinstance(exc, ValueError) else "Run a new flight search."
+    return result
 
 
-section = st.radio("Explore FlightSense", ["Fare predictions", "Live flight prices"], horizontal=True)
-if section == "Live flight prices":
-    live_search()
-else:
-    revision = asset_revision()
-    website = declare_component(f"flightsense_{revision}", path=component_assets(revision).name)
-    website(key="flightsense-website", default=None)
+try:
+    api_key = st.secrets.get("serpapi", {}).get("api_key", "")
+except FileNotFoundError:
+    api_key = ""
+revision = asset_revision()
+website = declare_component(f"flightsense_{revision}", path=component_assets(revision).name)
+reply = st.session_state.get("fare_reply", {})
+request = website(ready=bool(api_key), reply=reply, key="flightsense-website", default=None)
+if isinstance(request, dict) and isinstance(request.get("id"), str) and request["id"] != reply.get("id"):
+    st.session_state.fare_reply = handle(request, api_key, st.session_state)
+    st.rerun()

@@ -8,7 +8,7 @@ function render() {
   panel.hidden = !first;
   if (first && caption.textContent !== first.label) caption.textContent = first.label;
 }
-function begin(label) {
+export function begin(label) {
   const task = {label};
   pending.add(task);
   render();

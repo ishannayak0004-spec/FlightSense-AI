@@ -1,3 +1,4 @@
+import {setupComparison} from './compare.js';
 import {showNonstop} from './nonstop.js';
 import {loadEngine} from './engine.js';
 const $ = id => document.getElementById(id);
@@ -15,7 +16,8 @@ const fields=['source_city','destination_city','class','airline','stops','depart
 const money=x=>'₹'+Math.round(x).toLocaleString('en-IN');
 const pct=x=>(100*x).toFixed(1)+'%';
 let engine,option;
-function navigate(){const id=location.hash.slice(1);const active=['lab','dataset','international','workspace'].includes(id)?id:'world';
+function navigate(){const id=location.hash.slice(1);const active=['lab','dataset','international','workspace','live'].includes(id)?id:'world';
+ document.querySelector('.sys').lastChild.textContent=active==='live'?' Live search':' Historical model';
  document.querySelectorAll('.view').forEach(el=>el.hidden=el.id!==active);
  document.querySelectorAll('nav a').forEach(a=>{const on=a.hash==='#'+active;a.classList.toggle('on',on);if(on)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});}
 window.addEventListener('hashchange',navigate);navigate();
@@ -61,8 +63,17 @@ function renderTables(){
 try{
  engine=await loadEngine();configure({source_city:'Delhi',destination_city:'Mumbai',class:'Economy',airline:'Indigo',stops:'zero',departure_time:'Morning',arrival_time:'Morning'});
  $('estimate').disabled=false;renderTables();estimate();
+ setupComparison(engine,codes,record=>{
+  configure(record);
+  $('duration').value=record.duration;
+  $('days_left').value=record.days_left;
+  dayValue();
+  $('singleEstimate').open=true;
+  estimate();
+  $('singleEstimate').scrollIntoView({block:'start'});
+ });
  for(const f of fields)$(f).addEventListener('change',()=>{configure({});dirty();});
  $('swap').addEventListener('click',()=>{configure({source_city:$('destination_city').value,destination_city:$('source_city').value});dirty();});
  $('days_left').addEventListener('input',()=>{dayValue();dirty();});$('duration').addEventListener('input',dirty);
  $('form').addEventListener('submit',e=>{e.preventDefault();estimate();});
-}catch(e){$('price').textContent='Unavailable';$('error').textContent='The model could not be loaded. Reload to try again.';console.error(e);}
+}catch(e){$('price').textContent='Unavailable';$('error').textContent='The model could not be loaded. Reload to try again.';$('compareMeta').textContent='The India model could not be loaded. Reload to try again.';console.error(e);}
