@@ -1,3 +1,4 @@
+import {loadJSON} from './loading.js';
 import {inRupees,exchangeNote,onRateChange} from './exchange.js';
 const byId = id => document.getElementById(id);
 const norm = value => value.toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').trim();
@@ -61,7 +62,7 @@ function drawDirectory(){
  }
  byId('moreAirlines').hidden=limit>=matches.length;
 }
-async function read(name){const response=await fetch(new URL('./global/'+name+'.json',import.meta.url));if(!response.ok)throw Error(name);return response.json();}
+async function read(name){return loadJSON(new URL('./global/'+name+'.json',import.meta.url),'Loading the fare explorer');}
 try{
  const [airlines,africa,greece,world]=await Promise.all(['airlines','africa','greece','world-model'].map(read));Object.assign(rowsBySource,{africa,greece});
  for(const [key,c] of Object.entries(collections))byId('collection').add(new Option(c.title,key));

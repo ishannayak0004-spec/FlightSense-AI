@@ -1,3 +1,4 @@
+import {loadJSON} from './loading.js';
 import {showNonstop} from './nonstop.js';
 import {inRupees,exchangeNote,onRateChange} from './exchange.js';
 const $=id=>document.getElementById(id);
@@ -17,9 +18,7 @@ export function fareFor(model,a,b){
  return {km,price:Math.exp(model.fit.intercept+slope*Math.log(Math.max(1,km))+crossContinent*Number(a[4]!==b[4]))};
 }
 async function fetchData(name){
- const response=await fetch(new URL('./global/'+name+'.json',import.meta.url));
- if(!response.ok)throw Error('The '+name+' data could not be loaded.');
- return response.json();
+ return loadJSON(new URL('./global/'+name+'.json',import.meta.url),'Loading worldwide fares');
 }
 try{
  const [airports,model,catalog]=await Promise.all(['airports','world-model','airlines'].map(fetchData));

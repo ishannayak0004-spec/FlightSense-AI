@@ -1,3 +1,4 @@
+import {loadJSON} from './loading.js';
 const categoricalFields = ["source_city", "destination_city", "airline", "class", "stops", "departure_time", "arrival_time"];
 const keyFor = record => JSON.stringify(categoricalFields.map(field => record[field]));
 
@@ -49,9 +50,7 @@ export function createEngine(model, options, report) {
 
 export async function loadEngine() {
   const [model, options, report] = await Promise.all(["model", "options", "report"].map(async name => {
-    const response = await fetch(new URL(name + ".json", import.meta.url));
-    if (!response.ok) throw new Error("Could not load the airfare model. Please reload.");
-    return response.json();
+    return loadJSON(new URL(name + ".json", import.meta.url), 'Loading the India model');
   }));
   return createEngine(model, options, report);
 }

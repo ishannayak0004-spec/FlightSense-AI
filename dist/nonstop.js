@@ -1,6 +1,6 @@
+import {loadJSON} from './loading.js';
 // Directional outbound routes. A missing airport is outside the index's coverage.
-const index = fetch(new URL('./global/nonstop.json',import.meta.url))
- .then(response=>response.ok?response.json():null).catch(()=>null);
+const index = loadJSON(new URL('./global/nonstop.json',import.meta.url),'Checking nonstop routes').catch(()=>null);
 const active = new WeakMap();
 export async function showNonstop(panel,from,to){
  const request=Symbol();

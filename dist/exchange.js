@@ -1,3 +1,4 @@
+import {loadJSON} from './loading.js';
 // EUR reference rates retrieved together from Frankfurter on 25 November 2026.
 const bundled = {base:'EUR', date:'2026-11-25', rates:{INR:100.859, USD:1.0935, ZAR:19.3514}};
 const endpoint = 'https://api.frankfurter.dev/v1/latest?symbols=INR,USD,ZAR';
@@ -26,9 +27,7 @@ async function refresh(){
  pending=true;lastAttempt=Date.now();
  const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),8000);
  try {
-  const response=await fetch(endpoint,{cache:'no-store',signal:controller.signal});
-  if(!response.ok)throw Error('Rate service unavailable');
-  const data=await response.json();
+  const data=await loadJSON(endpoint,'Updating the rupee rate',{cache:'no-store',signal:controller.signal});
   if(!valid(data)||data.date<current.date)throw Error('Invalid or older observation');
   current=data;status='';
   try{localStorage.setItem(cacheKey,JSON.stringify(data));}catch{}

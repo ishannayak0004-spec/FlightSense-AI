@@ -2,3 +2,42 @@
 .airfilter,.directory,.sourceFoot{margin-top:18px}.airfilter{margin-bottom:8px}.directory{padding-bottom:18px}.directory label{max-width:620px}.directory a,.sourceFoot a{color:var(--cyan);text-decoration:underline;text-underline-offset:3px}input[type=search]{width:100%;padding:10px 12px;background:#0b1421;border:1px solid #304054;border-radius:8px;color:#f4f7fa;margin-top:5px}.worldTitle{font-size:26px;margin:14px 0 5px}.worldTitle+p,#directoryStatus{font-size:14px;color:var(--muted);margin:8px 0 12px}#worldNote,.directory .fine{margin-top:14px}.more{border:1px solid #38505d;border-radius:7px;color:var(--cyan);padding:8px 13px;background:#112832;margin:12px 0}.directory td,.directory th,#worldList td,#worldList th{padding:9px 8px}.sourceFoot{line-height:1.7}@media(max-width:580px){.bar nav{justify-content:space-between;gap:8px}.bar nav a{font-size:13px}.sectionTitle{gap:10px}.sectionTitle>span{white-space:nowrap}.directory td,#worldList td{font-size:13px}}
 #flightWarning,.worldEvidence{margin:14px 0;color:#cfe6e7}.worldEvidence{border-left:2px solid var(--cyan);padding-left:12px}.result .sourcelink{display:inline-block;margin-top:15px;font-size:14px}#worldValidation{margin:12px 0}#worldSources a{text-decoration:underline;color:var(--cyan)}@media(max-width:580px){.bar nav{gap:14px;overflow-x:auto;justify-content:start;scrollbar-width:thin}.bar nav a{white-space:nowrap}#world .sectionTitle>span{display:none}}
 .nonstop{margin:12px 0;padding:10px 12px;background:#10202d;border-left:3px solid #8296ae;border-radius:4px}.nonstop[data-status=listed]{border-color:var(--cyan)}.nonstop[data-status=absent]{border-color:#e6bb75}.nonstop strong,.nonstop small{display:block}.nonstop strong{font-size:15px}.nonstop small{color:var(--muted);margin-top:3px;font-size:13px}.nonstop a{text-decoration:underline;text-underline-offset:2px}
+
+.art{overflow:hidden;background:radial-gradient(ellipse at 63% 48%,#103748,#061624 58%,#081421);pointer-events:none}
+.radar-grid{position:absolute;inset:-25%;background-image:repeating-radial-gradient(circle at 62% 48%,transparent 0 44px,#4792ad30 45px,transparent 46px),linear-gradient(#4385a215 1px,transparent 1px),linear-gradient(90deg,#4385a215 1px,transparent 1px);background-size:auto,34px 34px,34px 34px}
+.aircraft-flight{position:absolute;width:min(82%,490px);right:7%;top:50%;transform:translateY(-50%) rotate(-2deg)}
+.aircraft-silhouette{display:block;width:100%;height:auto;clip-path:polygon(2.50% 60.50%,5.17% 58.75%,13.50% 61.75%,9.00% 43.25%,12.83% 40.75%,13.83% 41.00%,26.17% 58.00%,43.33% 45.50%,40.50% 41.50%,37.67% 43.00%,39.50% 39.50%,35.00% 35.00%,31.50% 37.50%,33.50% 34.00%,25.33% 27.50%,22.17% 29.50%,23.83% 26.25%,14.83% 19.50%,11.67% 11.25%,12.83% 11.25%,17.00% 17.25%,44.83% 31.25%,51.17% 26.75%,53.67% 26.50%,55.17% 27.75%,56.17% 29.75%,56.67% 33.25%,56.00% 37.00%,67.50% 29.25%,79.33% 21.50%,83.17% 19.75%,86.83% 19.00%,89.83% 19.75%,92.33% 21.00%,93.67% 23.00%,93.67% 25.00%,92.50% 27.50%,90.50% 31.00%,87.67% 34.25%,69.33% 47.50%,71.17% 54.00%,75.67% 52.25%,79.00% 51.75%,80.67% 52.50%,82.00% 54.25%,82.83% 57.50%,82.50% 61.00%,81.67% 63.50%,74.50% 67.50%,81.33% 85.25%,82.17% 85.50%,84.17% 82.75%,85.33% 82.75%,82.50% 88.00%,80.33% 89.25%,79.50% 88.75%,70.50% 78.75%,68.67% 80.25%,69.50% 77.25%,63.83% 69.75%,61.83% 71.25%,63.33% 68.25%,59.50% 63.50%,56.67% 65.25%,58.17% 62.00%,55.00% 59.50%,44.17% 66.75%,37.00% 71.00%,27.33% 74.00%,26.17% 86.50%,24.00% 89.25%,23.17% 88.75%,16.50% 75.00%,11.17% 77.50%,9.67% 77.00%,9.67% 75.00%,11.67% 70.50%)}
+.engine-trail{position:absolute;top:64%;right:27%;width:37%;height:3%;border-radius:50%;background:linear-gradient(90deg,transparent,#5ee8f158);transform:rotate(-23deg);transform-origin:right center;filter:blur(2px)}
+@media(prefers-reduced-motion:no-preference){
+ .aircraft-flight{animation:jet-cruise 7s ease-in-out infinite}
+ .radar-grid{animation:radar-drift 14s ease-in-out infinite alternate}
+ @keyframes jet-cruise{0%,100%{transform:translate(-4%,-45%) rotate(-3deg)}50%{transform:translate(3%,-54%) rotate(1deg)}}
+ @keyframes radar-drift{to{transform:translate(-24px,12px)}}
+}
+@media(max-width:580px){.aircraft-flight{width:95%;right:-9%}}
+.flight-loading{position:fixed;right:clamp(12px,3vw,40px);bottom:max(16px,env(safe-area-inset-bottom));z-index:20;display:flex;align-items:center;gap:12px;padding:6px 16px 6px 8px;border:1px solid #335866;border-radius:24px;background:#0c1b29;color:#d7eeec;box-shadow:0 6px 24px #02081588;pointer-events:none;font-size:14px}
+.loading-sky{position:relative;display:block;width:70px;height:31px;overflow:hidden;border-radius:16px;background:linear-gradient(125deg,#103138,#112333)}
+.loading-sky:before{content:'';position:absolute;left:5px;right:6px;top:54%;border-top:1px dashed #427477;transform:rotate(-9deg)}
+.loading-jet{position:absolute;top:3px;left:22px;color:var(--cyan);transform:rotate(-9deg)}
+@media(prefers-reduced-motion:no-preference){
+ .loading-jet{animation:loading-flyby 1.9s linear infinite}
+ @keyframes loading-flyby{0%{transform:translate(-49px,7px) rotate(-9deg)}100%{transform:translate(52px,-8px) rotate(-9deg)}}
+}
+
+@media (hover:hover) and (pointer:fine){
+  body{cursor:url("plane-cursor.svg") 5 5,auto}
+  a,button,select,summary,label[for],input[type="range"]{cursor:url("plane-cursor.svg") 5 5,pointer}
+  input:not([type]),input[type="text"],input[type="search"],input[type="number"],textarea,[contenteditable="true"]{cursor:text}
+  :is(button,input,select):disabled{cursor:not-allowed}
+}
+
+.takeoff{position:fixed;inset:0;margin:0;width:100%;height:100%;max-width:none;max-height:none;overflow:hidden;padding:0;border:0;color:#eefbfc;background:radial-gradient(ellipse at 50% 44%,#123749,#061522 53%,#050e18);text-align:center}
+.takeoff::backdrop{background:transparent}
+.takeoff[open]{display:grid;place-items:center;animation:takeoff-reveal 3s linear both}
+.takeoff-scene{position:relative;width:min(90vw,660px);height:min(60vh,380px);display:grid;align-items:end;justify-items:center}
+.takeoff-radar{position:absolute;inset:-30% -20%;background:repeating-radial-gradient(ellipse at center,transparent 0 46px,#4e99ab29 47px,transparent 48px);mask-image:radial-gradient(ellipse,#000 22%,transparent 70%)}
+.takeoff-plane{position:absolute;width:min(60%,335px);top:38%;left:50%;animation:takeoff-climb 2.85s cubic-bezier(.22,.54,.55,1) both}
+.takeoff-brand{position:relative;font-size:clamp(32px,6vw,58px);font-weight:750;letter-spacing:-.055em}.takeoff-brand em{font-style:normal;color:var(--cyan)}
+.takeoff-skip{position:absolute;bottom:max(24px,env(safe-area-inset-bottom));right:clamp(18px,4vw,64px);padding:8px 16px;border:1px solid #41616d;border-radius:20px;background:#102432;color:#e4f4f4}
+@keyframes takeoff-climb{0%{transform:translate(-115%,0%) rotate(9deg) scale(.72);opacity:0}16%{opacity:1}65%{transform:translate(-50%,-54%) rotate(-3deg) scale(1)}100%{transform:translate(28%,-102%) rotate(-9deg) scale(.88);opacity:0}}
+@keyframes takeoff-reveal{0%,86%{opacity:1}100%{opacity:0}}
