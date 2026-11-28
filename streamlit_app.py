@@ -44,6 +44,7 @@ def component_assets(revision):
   });
   addEventListener("message", event => {
     if (event.source !== parent || event.data?.type !== "streamlit:render") return;
+    if (!window.flightState && event.data.args.openLive) location.hash = "live";
     window.flightState = event.data.args;
     window.dispatchEvent(new Event("fare-render"));
     resize();
@@ -137,7 +138,7 @@ except FileNotFoundError:
 revision = asset_revision()
 website = declare_component(f"flightsense_{revision}", path=component_assets(revision).name)
 reply = st.session_state.get("fare_reply", {})
-request = website(ready=bool(api_key), reply=reply, key="flightsense-website", default=None)
+request = website(openLive=st.query_params.get("view") == "live", ready=bool(api_key), reply=reply, key="flightsense-website", default=None)
 if isinstance(request, dict) and isinstance(request.get("id"), str) and request["id"] != reply.get("id"):
     st.session_state.fare_reply = handle(request, api_key, st.session_state)
     st.rerun()
