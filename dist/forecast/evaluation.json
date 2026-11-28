@@ -1,0 +1,103 @@
+{
+  "sourceRows": 5608756,
+  "eligibleQuotes": 65379,
+  "consecutivePairs": 26005,
+  "trainPairs": 13957,
+  "trainSearch": [
+    "2022-04-16",
+    "2022-04-22"
+  ],
+  "testSearch": [
+    "2022-04-27",
+    "2022-04-27"
+  ],
+  "trainDepartures": [
+    "2022-04-18",
+    "2022-06-01"
+  ],
+  "testDepartures": [
+    "2022-06-02",
+    "2022-06-19"
+  ],
+  "test": {
+    "pairs": 853,
+    "modelMAE": 0.542,
+    "baselineMAE": 0.542
+  },
+  "routes": {
+    "ATL-BOS": {
+      "pairs": 141,
+      "modelMAE": 0.674,
+      "baselineMAE": 0.674
+    },
+    "BOS-ATL": {
+      "pairs": 139,
+      "modelMAE": 1.906,
+      "baselineMAE": 1.906
+    },
+    "JFK-LAX": {
+      "pairs": 299,
+      "modelMAE": 0.241,
+      "baselineMAE": 0.241
+    },
+    "LAX-JFK": {
+      "pairs": 274,
+      "modelMAE": 0.109,
+      "baselineMAE": 0.109
+    }
+  },
+  "examples": [
+    {
+      "route": "ATL-BOS",
+      "search": "2022-04-27",
+      "departure": "2022-06-02",
+      "features": [
+        579.35,
+        36.0,
+        3.0,
+        7.0
+      ],
+      "actual": 579.35,
+      "predicted": 579.35
+    },
+    {
+      "route": "BOS-ATL",
+      "search": "2022-04-27",
+      "departure": "2022-06-02",
+      "features": [
+        258.6,
+        36.0,
+        3.0,
+        9.0
+      ],
+      "actual": 258.6,
+      "predicted": 258.6
+    },
+    {
+      "route": "JFK-LAX",
+      "search": "2022-04-27",
+      "departure": "2022-06-02",
+      "features": [
+        283.6,
+        36.0,
+        3.0,
+        7.0
+      ],
+      "actual": 283.6,
+      "predicted": 283.6
+    },
+    {
+      "route": "LAX-JFK",
+      "search": "2022-04-27",
+      "departure": "2022-06-02",
+      "features": [
+        323.6,
+        36.0,
+        3.0,
+        7.0
+      ],
+      "actual": 323.6,
+      "predicted": 323.6
+    }
+  ]
+}
